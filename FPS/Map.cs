@@ -39,6 +39,15 @@ namespace FPS
 
         public void Draw(Game1 game)
         {
+            // Draw background
+            for (int y = 0; y < Drawing.GridHeight; y++)
+            {
+                Rectangle rect = new Rectangle(0, y * Drawing.Grid, Drawing.Width, Drawing.Grid);
+                int colorFactor = (int)(128 * (Math.Abs(Drawing.GridHeight / 2 - y) / (float)(Drawing.GridHeight / 2)));
+                Color color = new Color(colorFactor, colorFactor, colorFactor);
+                Drawing.DrawRect(rect, color, game);
+            }
+
             // Cast ray for each grid
             for (int x = 0; x < Drawing.GridWidth; x++)
             {
