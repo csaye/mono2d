@@ -19,7 +19,9 @@ namespace FPS
         private const float Fov = (float)Math.PI / 4;
 
         private const float RayStepDist = 0.1f;
-        private const float MaxDepth = Drawing.GridWidth;
+        private const float MaxDepth = 64;
+
+        private float fps;
 
         public Map()
         {
@@ -46,8 +48,11 @@ namespace FPS
             MovePlayer(delta);
         }
 
-        public void Draw(Game1 game)
+        public void Draw(GameTime gameTime, Game1 game)
         {
+            float delta = (float)gameTime.ElapsedGameTime.TotalSeconds; // Get time delta
+            fps = 1 / delta; // Set fps
+
             // Draw background
             for (int y = 0; y < Drawing.GridHeight; y++)
             {
@@ -106,6 +111,38 @@ namespace FPS
                 Color color = new Color(colorFactor, colorFactor, colorFactor);
                 Drawing.DrawRect(rect, color, game);
             }
+
+            // Draw data text
+            Drawing.DrawText($"pos: {playerPosition}", new Vector2(8, 8), Color.White, game);
+            Drawing.DrawText($"angle: {playerAngle}", new Vector2(8, 24), Color.White, game);
+            Drawing.DrawText($"fps: {fps}", new Vector2(8, 40), Color.White, game);
+
+            // Draw minimap
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    // If no wall, skip draw
+                    if (!map[x, y]) continue;
+
+                    // Draw wall
+                    int posX = Drawing.Width - (Width + 8) + x;
+                    int posY = 8 + y;
+                    Rectangle rect = new Rectangle(posX, posY, 1, 1);
+                    Drawing.DrawRect(rect, Color.White, game);
+                }
+            }
+            // Draw player
+            int playerX = Drawing.Width - (Width + 8) + (int)playerPosition.X;
+            int playerY = 8 + (int)playerPosition.Y;
+            Rectangle playerRect = new Rectangle(playerX - 1, playerY - 1, 3, 3);
+            Drawing.DrawRect(playerRect, Color.Yellow, game);
+
+            // Draw crosshair
+            Rectangle crosshairRect = new Rectangle(Drawing.Width / 2 - 1, Drawing.Height / 2 - 4, 2, 8);
+            Drawing.DrawRect(crosshairRect, Color.White, game);
+            crosshairRect = new Rectangle(Drawing.Width / 2 - 4, Drawing.Height / 2 - 1, 8, 2);
+            Drawing.DrawRect(crosshairRect, Color.White, game);
         }
 
         private void ProcessKeyboardState(Game1 game)

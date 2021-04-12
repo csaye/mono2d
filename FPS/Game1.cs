@@ -50,7 +50,7 @@ namespace FPS
             SpriteBatch.Begin();
 
             // Draw map
-            map.Draw(this);
+            map.Draw(gameTime, this);
 
             SpriteBatch.End();
 
