@@ -16,6 +16,8 @@ namespace FPS
 
         private static Texture2D blankTexture;
 
+        private static SpriteFont arialFont;
+
         public static void InitializeGraphics(Game1 game)
         {
             // Initialize graphics
@@ -26,11 +28,18 @@ namespace FPS
             // Initialize blank texture
             blankTexture = new Texture2D(game.GraphicsDevice, 1, 1);
             blankTexture.SetData(new[] { Color.White });
+
+            arialFont = game.Content.Load<SpriteFont>("Arial");
         }
 
         public static void DrawRect(Rectangle rect, Color color, Game1 game)
         {
             game.SpriteBatch.Draw(blankTexture, rect, color);
+        }
+
+        public static void DrawText(string text, Vector2 position, Color color, Game1 game)
+        {
+            game.SpriteBatch.DrawString(arialFont, text, position, color);
         }
     }
 }
