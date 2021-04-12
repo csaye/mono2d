@@ -8,7 +8,7 @@ namespace FPS
     {
         private bool[,] map;
 
-        private Vector2 playerPosition = new Vector2(16, 16);
+        private Vector2 playerPosition = new Vector2(2, 2);
         private float playerAngle = 0;
         private float playerSpeed;
         private float playerRotation;
@@ -18,14 +18,23 @@ namespace FPS
 
         private const float Fov = (float)Math.PI / 4;
 
-        private const float RayStep = 0.1f;
+        private const float RayStepDist = 0.1f;
         private const float MaxDepth = Drawing.GridWidth;
 
         public Map()
         {
+            // Initialize map
             int width = Drawing.GridWidth;
             int height = Drawing.GridHeight;
             map = new bool[width, height];
+            int pillarStep = 8;
+            for (int x = 0; x < width; x += pillarStep)
+            {
+                for (int y = 0; y < height; y += pillarStep)
+                {
+                    map[x, y] = true;
+                }
+            }
         }
 
         public void Update(GameTime gameTime, Game1 game)
@@ -57,6 +66,11 @@ namespace FPS
                 float rayDistance = 0;
                 bool hitWall = false;
 
+                // Calculate ray step
+                float rayStepX = RayStepDist * (float)Math.Sin(rayAngle);
+                float rayStepY = RayStepDist * (float)Math.Cos(rayAngle);
+                Vector2 rayStep = new Vector2(rayStepX, rayStepY);
+
                 // Cast ray
                 while (!hitWall && rayDistance < MaxDepth)
                 {
@@ -76,9 +90,8 @@ namespace FPS
                     // If wall not hit, increment ray distance
                     if (!hitWall)
                     {
-                        rayPosition.X += RayStep * (float)Math.Sin(rayAngle);
-                        rayPosition.Y += RayStep * (float)Math.Cos(rayAngle);
-                        rayDistance += RayStep;
+                        rayPosition += rayStep;
+                        rayDistance += RayStepDist;
                     }
                 }
 
