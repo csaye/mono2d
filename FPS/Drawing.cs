@@ -6,10 +6,10 @@ namespace FPS
     public static class Drawing
     {
         // Size of grid
-        public const int Grid = 8;
+        public const int Grid = 1;
         // Width and height of grid
-        public const int GridWidth = 64;
-        public const int GridHeight = 64;
+        public const int GridWidth = 512;
+        public const int GridHeight = 512;
         // Width and height of screen
         public const int Width = GridWidth * Grid;
         public const int Height = GridHeight * Grid;

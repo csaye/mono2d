@@ -6,17 +6,21 @@ namespace FPS
 {
     public class Map
     {
-        private bool[,] map;
+        private const float Pi = (float)Math.PI;
 
-        private Vector2 playerPosition = new Vector2(2, 2);
-        private float playerAngle = 0;
-        private float playerSpeed;
+        private bool[,] Walls;
+        private const int Width = 32;
+        private const int Height = 16;
+
+        private Vector2 playerPosition = new Vector2(1, 1);
+        private float playerAngle;
+        private Vector2 playerDirection;
         private float playerRotation;
 
         private const float WalkSpeed = 8;
         private const float RotationSpeed = 1.5f;
 
-        private const float Fov = (float)Math.PI / 4;
+        private const float Fov = Pi / 2;
 
         private const float RayStepDist = 0.1f;
         private const float MaxDepth = 64;
@@ -25,16 +29,31 @@ namespace FPS
 
         public Map()
         {
-            // Initialize map
-            int width = Drawing.GridWidth;
-            int height = Drawing.GridHeight;
-            map = new bool[width, height];
-            int pillarStep = 8;
-            for (int x = 0; x < width; x += pillarStep)
+            string walls = "";
+            walls += "################################";
+            walls += "#..#.....#.....................#";
+            walls += "#..#.....#.....................#";
+            walls += "#..#..#..#.....#..########..####";
+            walls += "#..#..#..#.....#.........#.....#";
+            walls += "#..#..#######..#.........#.....#";
+            walls += "#..............#..#......#.....#";
+            walls += "#..............#..#......#.....#";
+            walls += "#..#############..#......#.....#";
+            walls += "#.................#......#.....#";
+            walls += "#.................###..........#";
+            walls += "#########..########............#";
+            walls += "#..#.......#...........#########";
+            walls += "#..............................#";
+            walls += "#.....#.......#................#";
+            walls += "#############################..#";
+
+            // Initialize walls
+            Walls = new bool[Width, Height];
+            for (int x = 0; x < Width; x++)
             {
-                for (int y = 0; y < height; y += pillarStep)
+                for (int y = 0; y < Height; y++)
                 {
-                    map[x, y] = true;
+                    Walls[x, y] = walls[y * Width + x] == '#';
                 }
             }
         }
@@ -79,17 +98,12 @@ namespace FPS
                 // Cast ray
                 while (!hitWall && rayDistance < MaxDepth)
                 {
-                    // If out of bounds, wall hit
-                    if (rayPosition.X < 0 || rayPosition.X >= Drawing.GridWidth || rayPosition.Y < 0 || rayPosition.Y >= Drawing.GridHeight)
-                    {
-                        hitWall = true;
-                    }
                     // If in bounds, check whether wall hit
-                    else
+                    if (rayPosition.X >= 0 && rayPosition.X < Width && rayPosition.Y >= 0 && rayPosition.Y < Height)
                     {
                         int mapX = (int)rayPosition.X;
                         int mapY = (int)rayPosition.Y;
-                        if (map[mapX, mapY]) hitWall = true;
+                        if (Walls[mapX, mapY]) hitWall = true;
                     }
 
                     // If wall not hit, increment ray distance
@@ -101,7 +115,7 @@ namespace FPS
                 }
 
                 // Get wall height and y
-                float closeFactor = (1 - (rayDistance / MaxDepth));
+                float closeFactor = 1 - (rayDistance / MaxDepth);
                 int wallHeight = (int)(Drawing.Height * closeFactor);
                 int wallY = (Drawing.Height / 2) - (wallHeight / 2);
 
@@ -123,7 +137,7 @@ namespace FPS
                 for (int y = 0; y < Height; y++)
                 {
                     // If no wall, skip draw
-                    if (!map[x, y]) continue;
+                    if (!Walls[x, y]) continue;
 
                     // Draw wall
                     int posX = Drawing.Width - (Width + 8) + x;
@@ -150,13 +164,17 @@ namespace FPS
             // Get keyboard state
             KeyboardState state = game.KeyboardState;
 
-            // Get speed
-            if (state.IsKeyDown(Keys.W)) playerSpeed = 1;
-            else if (state.IsKeyDown(Keys.S)) playerSpeed = -1;
-            else playerSpeed = 0;
+            // Get player direction
+            if (state.IsKeyDown(Keys.W)) playerDirection.Y = 1;
+            else if (state.IsKeyDown(Keys.S)) playerDirection.Y = -1;
+            else playerDirection.Y = 0;
+            if (state.IsKeyDown(Keys.D)) playerDirection.X = 1;
+            else if (state.IsKeyDown(Keys.A)) playerDirection.X = -1;
+            else playerDirection.X = 0;
+
             // Get rotation
-            if (state.IsKeyDown(Keys.A)) playerRotation = -1;
-            else if (state.IsKeyDown(Keys.D)) playerRotation = 1;
+            if (state.IsKeyDown(Keys.Left)) playerRotation = -1;
+            else if (state.IsKeyDown(Keys.Right)) playerRotation = 1;
             else playerRotation = 0;
         }
 
@@ -164,17 +182,20 @@ namespace FPS
         {
             // Update angle
             playerAngle += playerRotation * RotationSpeed * delta;
+            float sinA = (float)Math.Sin(playerAngle);
+            float cosA = (float)Math.Cos(playerAngle);
 
             // Get x and y change
-            float xChange = playerSpeed * WalkSpeed * delta * (float)Math.Sin(playerAngle);
-            float yChange = playerSpeed * WalkSpeed * delta * (float)Math.Cos(playerAngle);
+            float xChange = playerDirection.X * cosA + playerDirection.Y * sinA;
+            float yChange = playerDirection.X * -sinA + playerDirection.Y * cosA;
+            xChange *= WalkSpeed * delta;
+            yChange *= WalkSpeed * delta;
+
+            // If out of bounds or not wall, move player
             int mapX = (int)(playerPosition.X + xChange);
             int mapY = (int)(playerPosition.Y + yChange);
-
-            // If out of bounds, return
-            if (mapX < 0 || mapX > map.GetLength(0) - 1 || mapY < 0 || mapY > map.GetLength(1) - 1) return;
-            // If not wall, move player
-            if (!map[mapX, mapY]) playerPosition += new Vector2(xChange, yChange);
+            if (mapX < 0 || mapX >= Width || mapY < 0 || mapY >= Height) playerPosition += new Vector2(xChange, yChange);
+            else if (!Walls[mapX, mapY]) playerPosition += new Vector2(xChange, yChange);
         }
     }
 }
