@@ -11,7 +11,8 @@ namespace FPS
 
         public KeyboardState KeyboardState { get; private set; }
 
-        private Map map = new Map();
+        public Map Map { get; } = new Map();
+        public Player Player { get; } = new Player();
 
         public Game1()
         {
@@ -37,8 +38,8 @@ namespace FPS
             KeyboardState = Keyboard.GetState();
             ProcessKeyboardState();
 
-            // Update map
-            map.Update(gameTime, this);
+            // Update player
+            Player.Update(gameTime, this);
 
             base.Update(gameTime);
         }
@@ -47,12 +48,9 @@ namespace FPS
         {
             GraphicsDevice.Clear(Color.Black);
 
-            SpriteBatch.Begin();
-
-            // Draw map
-            map.Draw(gameTime, this);
-
-            SpriteBatch.End();
+            SpriteBatch.Begin(); // Begin sprite batch
+            Map.Draw(gameTime, this); // Draw map
+            SpriteBatch.End(); // End sprite batch
 
             base.Draw(gameTime);
         }
