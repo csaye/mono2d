@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FPS
+namespace Mono2D
 {
     public static class Program
     {

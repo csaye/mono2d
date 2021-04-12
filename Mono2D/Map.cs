@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace FPS
+namespace Mono2D
 {
     public class Map
     {

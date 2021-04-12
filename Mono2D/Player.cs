@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using System;
 
-namespace FPS
+namespace Mono2D
 {
     public class Player
     {
